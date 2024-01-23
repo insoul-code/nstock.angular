@@ -1,20 +1,14 @@
-# Angular
-# Build a project that uses Angular.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
-trigger:
-- main
-
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: |
-    npm install -g @angular/cli
-    npm install
-    ng build --prod
-  displayName: 'npm install and build'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'install -g @angular/cli'
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: 'src/'
+- task: CmdLine@2
+  inputs:
+    script: 'npm run build'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '/dist'
@@ -22,3 +16,8 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
